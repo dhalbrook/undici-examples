@@ -1,6 +1,6 @@
 **Fetching faster with Undici**
 
-Way back in 2022, in the before times, [Node.js](http://Node.js) had no native fetch support.  It was added in the Node 18 release, and the library underpinning this was called “undici” (latin for eleven).  In the past three years, [Node.js](http://Node.js) has continued to develop and improve, and behind the scenes so has Undici.
+Way back in 2022, in the before times, [Node.js](http://Node.js) had no native fetch support.  It was added in the Node 18 release, and the library underpinning this was called “[Undici](https://undici.nodejs.org)” (latin for eleven).  In the past three years, [Node.js](http://Node.js) has continued to develop and improve, and behind the scenes so has Undici.
 
 Anyone who has written a non-trivial project using fetch on the server, be it in middleware or underpinning isomorphic data calls on the UI layer, knows that often enough data fetching becomes a performance bottleneck.  However, often we just blindly call “fetch” and hope for the best, because it’s not readily apparent that other options are available.
 
