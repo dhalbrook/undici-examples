@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "loadtest" : "autocannon -c 3 -d 30 http://localhost:3000"
+    "loadtest": "autocannon -c 3 -d 30 http://localhost:3000"
   },
   "dependencies": {
     "next": "15.3.3",
@@ -23,6 +23,7 @@
     "autocannon": "^8.0.0",
     "eslint": "^9",
     "eslint-config-next": "15.3.3",
+    "prettier": "^3.5.3",
     "typescript": "^5"
   }
 }
