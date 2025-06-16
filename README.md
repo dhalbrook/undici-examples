@@ -4,7 +4,7 @@ Way back in 2022, in the before times, Node.js had no native fetch support. It w
 
 Anyone who has written a non-trivial project using fetch on the server, be it in middleware or underpinning isomorphic API calls on the UI layer, knows that often enough data fetching becomes a performance bottleneck. Most often we simply call "fetch" and hope for the best, because it's not readily apparent that other options are available.
 
-The fetch spec, as implemented by Node.js, uses a globally scoped dispatcher backed by Undici, and this dispatcher underpins all fetch calls. It works well and works as expected, which is a testament to sensible defaults. But the Node.js fetch implementation also allows for a custom dispatcher to be passed to the fetch call site, like this:
+The fetch spec, as implemented by Node.js, uses a globally scoped dispatcher backed by Undici, and this dispatcher underpins all fetch calls. It works well and works as expected, which is a testament to sensible defaults. But the Node.js fetch implementation also allows for a custom dispatcher to be passed to a fetch call, like this:
 ```typescript
 const dispatcher = ???
 
