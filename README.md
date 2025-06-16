@@ -1,11 +1,10 @@
 **Fetching faster with Undici**
 
-Way back in 2022, in the before times, [Node.js](http://Node.js) had no native fetch support.  It was added in the Node 18 release, and the library underpinning this was called “[Undici](https://undici.nodejs.org)” (latin for eleven).  In the past three years, [Node.js](http://Node.js) has continued to develop and improve, and behind the scenes so has Undici.
+Way back in 2022, in the before times, Node.js had no native fetch support. It was added in the Node 18 release, and the library underpinning this was called "Undici" (latin for eleven). In the past three years, Node.js has continued to develop and improve, and behind the scenes so has Undici.
 
-Anyone who has written a non-trivial project using fetch on the server, be it in middleware or underpinning isomorphic data calls on the UI layer, knows that often enough data fetching becomes a performance bottleneck.  However, often we just blindly call “fetch” and hope for the best, because it’s not readily apparent that other options are available.
+Anyone who has written a non-trivial project using fetch on the server, be it in middleware or underpinning isomorphic API calls on the UI layer, knows that often enough data fetching becomes a performance bottleneck. Most often we simply call "fetch" and hope for the best, because it's not readily apparent that other options are available.
 
-The fetch spec, as implemented by [Node.js](http://Node.js), uses a globally scoped dispatcher backed by Undici, and this dispatcher underpins all fetch calls.  It works well and works as expected, which is a testament to sensible defaults.  But the Node.js fetch implementation also allows for a custom dispatcher to be passed, like this:
-
+The fetch spec, as implemented by Node.js, uses a globally scoped dispatcher backed by Undici, and this dispatcher underpins all fetch calls. It works well and works as expected, which is a testament to sensible defaults. But the Node.js fetch implementation also allows for a custom dispatcher to be passed to the fetch call site, like this:
 ```typescript
 const dispatcher = ???
 
@@ -13,7 +12,7 @@ const response = await fetch(`https://catfact.ninja/fact`, {
     dispatcher
 } as RequestInit);
 ````
-The dispatcher you provide here can be as powerful as you need it to be, and Undici has plenty of options to tune it to your needs.  Alternatively, you can override the global dispatcher if you want to customize the way every fetch call in your app works by doing the following:
+The dispatcher you provide here can be as powerful as you need it to be, and Undici has plenty of options to tune it to your needs. Alternatively, you can override the global dispatcher if you want to customize the way every fetch call in your app works by doing the following:
 
 ```typescript
 setGlobalDispatcher(dispatcher);
@@ -140,5 +139,4 @@ return new Agent({
 
 **Wrap-up**
 
-I hope this gives you some ideas of the possibilities of tuning Undici.  Of course, there are many more things you can change to make it optimal for your needs. 
-Enjoy!
+I hope this gives you some ideas of the possibilities of tuning Undici so that you and your user base can fetch faster.
