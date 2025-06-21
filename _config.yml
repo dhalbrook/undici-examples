@@ -1,3 +1,3 @@
 theme: jekyll-theme-slate
-title: Fetch faster with undici
-description: A repo with numerous examples of customizing Undici within a simple Next.js application
+title: Fetching faster with Undici
+description: Examples of tuning Undici within a simple Next.js application
