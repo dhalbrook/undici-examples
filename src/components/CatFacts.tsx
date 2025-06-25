@@ -1,4 +1,4 @@
-import { createDispatcher } from "@/dispatcher/UndiciExamples";
+import { createDispatcher } from "@/dispatcher/UndiciFetchExamples";
 
 /**
  * This sample React Server component fetches a list of cat facts and displays it.
