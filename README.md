@@ -1,4 +1,4 @@
-**Fetching faster with Undici**
+## Fetching faster with Undici
 
 Way back in 2022, in the before times, Node.js had no native fetch support. It was added in the Node 18 release, and the library underpinning this was called "Undici" (latin for eleven). In the past three years, Node.js has continued to develop and improve, and behind the scenes so has Undici.
 
@@ -140,3 +140,77 @@ return new Agent({
 **Wrap-up**
 
 I hope this gives you some ideas of the possibilities of tuning Undici so that you and your user base can fetch faster.
+
+## Making your [Node.js](http://Node.js) GraphQL calls more resilient
+
+These days, making server-side GraphQL calls from a web application is a common practice.  The popularity of GraphQL as a language has increased, and its richness of expression in a single call has led it to be a natural fit for fetching entire domain object graphs in one go.  As long as you keep the query size and complexity under control, it can be a great solution for rendering your UI views.
+
+When this is done in a [Node.](http://Node.JS)js application (either directly or via a Node-based framework like Next.js), the GraphQL client generally delegates its request to the native fetch client to execute.  In modern versions of [Node.js](http://Node.js) this native fetch client is called Undici (https://github.com/nodejs/undici).
+
+**The problem with GraphQL calls**
+
+By default, Undici assumes only GET and HEAD requests are idempotent (see https://undici.nodejs.org/\#/docs/api/Dispatcher?id=parameter-dispatchoptions). This makes sense for REST APIs.  In this context of Undici, idempotency refers to the ability to safely retry the request if it fails.  Having idempotent calls improves resilience overall, and especially so if you’re using pipelining, where multiple requests are sent over the same connection concurrently.
+
+Often enough GraphQL requests, be they queries or mutations, are made using POST.  This is because GraphQL operation bodies are prone to being too large to safely serialize into the URL, especially if multiple fragments are included.  However, because they don’t actually mutate anything, semantically these queries are equivalent to a GET, and thus are safe to mark as idempotent.  In other words, even though they use POST, they won’t cause any side effects if they are retried.
+
+**OK, that’s nice, but how do we make this happen?**
+
+The first step is to implement your own custom Undici agent.  The [previous article](#fetching-faster-with-undici) has examples, and it can be just a few lines of code.
+
+Once your GraphQL client is using a custom Agent, there is a simple approach to telling Undici that you’re executing a GraphQL query: use a marker header.  This header can be anything you want, but in the case of my examples, I’m using: “x-graphql-query” with a value of “true”.  You can provide a simple overload of “useQuery” for Apollo Client, or other strategies for including this header.  The important thing is that it’s only included for queries, not for mutations.
+
+Here is a very simple example using the “graphql-request” library:
+
+```typescript
+const response = await graphQLClient.request(query, {},
+ {
+   // pass this through as a marker that this is a query and not a mutation
+   "x-graphql-query": "true",
+ },
+);
+
+```
+
+When it gets to the Undici layer, you can pick it up and correlate it in the interceptor, like so:
+
+```typescript
+const graphqlQueryHeader = "x-graphql-query";
+
+/**
+* This is an example interceptor to mark graphql requests as idempotent.
+*/
+function graphQLQueryInterceptor(): Dispatcher.DispatcherComposeInterceptor {
+ return (dispatch) => {
+   return function InterceptedDispatch(options, handler) {
+     const { headers } = options;
+     // look for the marker header that indicates this is a GraphQL query
+     if (
+       headers &&
+       graphqlQueryHeader in headers &&
+       headers[graphqlQueryHeader] === "true"
+     ) {
+       //clean up the marker header
+       delete headers[graphqlQueryHeader];
+       // mark graphql queries as idempotent so they can be retried and pipelined
+       options.idempotent = true;
+     }
+     return dispatch(options, handler);
+   };
+ };
+}
+```
+
+The final step is to make sure your Undici dispatcher is using the interceptor, like so:
+
+```typescript
+import { Agent, Dispatcher, interceptors } from "undici";
+
+function createGraphQLDispatcher(): Dispatcher {
+ return new Agent()
+   .compose([graphQLQueryInterceptor(), interceptors.retry()])
+}
+```
+
+And there you have it!  From this point on, your GraphQL requests will be able to be pipelined, as well as automatically be retried in the case of network errors.
+
+Happy coding!
